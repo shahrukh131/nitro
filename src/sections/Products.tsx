@@ -7,7 +7,7 @@ export function Products() {
     <section
       id="products"
       aria-labelledby="products-title"
-      className="relative isolate flex h-svh min-h-[38rem] flex-col justify-end pb-[max(1rem,7.5svh)] short:min-h-0"
+      className="relative isolate flex h-svh min-h-[38rem] flex-col justify-end pb-[max(1rem,6.5svh)] short:min-h-0"
     >
       <h2 id="products-title" className="sr-only">
         Our flavours

@@ -28,7 +28,6 @@
   --color-floor-rim: #3c3c3c;
   --color-muted: rgb(255 255 255 / 0.62);
   --color-shine: rgb(255 255 255 / 0.14);
-  --color-can-edge: rgb(0 0 0 / 0.5);
 
   /* Sakana: single weight; its lowercase are small-cap glyphs ("Nitro" renders as NiTRO). */
   --font-display: 'Sakana', 'Arial Black', sans-serif;
@@ -115,6 +114,11 @@
     outline-offset: 3px;
   }
 
+  /* Sections focused programmatically after in-page navigation (stepNav). */
+  [tabindex='-1']:focus {
+    outline: none;
+  }
+
   ::selection {
     background: var(--color-accent);
     color: var(--color-ink);
@@ -139,20 +143,13 @@
   mask-size: 100% 100%;
 }
 
-/* Fixed light on the cylinder: dark rims + a soft specular band left of centre.
-   It never moves, so the label sliding beneath it reads as rotation. */
+/* Glint layer. Figma's can is just body + colour-burned label (the body image already
+   carries the cylinder shading), so at rest the glint is invisible. Animations may fade
+   it in briefly during a spin. */
 @utility can-shine {
   pointer-events: none;
-  background: linear-gradient(
-    90deg,
-    var(--color-can-edge) 0%,
-    transparent 16%,
-    transparent 24%,
-    var(--color-shine) 33%,
-    transparent 44%,
-    transparent 80%,
-    var(--color-can-edge) 100%
-  );
+  opacity: 0;
+  background: linear-gradient(90deg, transparent 22%, var(--color-shine) 33%, transparent 44%);
 }
 
 @utility no-scrollbar {

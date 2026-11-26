@@ -1,8 +1,9 @@
 import type { CanHandle } from '../components/can/Can';
-import { LABEL_PERIOD, LABEL_SHIFT } from '../data/can';
+import { LABEL_SHIFT } from '../data/can';
 import { featuredProduct } from '../data/products';
 import { labelShiftVars } from './canSpin';
 import { gsap, ScrollTrigger } from './gsap';
+import { isNavigating } from './scrollIntent';
 
 type Step = 'hero' | 'story' | 'products';
 
@@ -10,7 +11,7 @@ type Step = 'hero' | 'story' | 'products';
 export interface CanTimelineConfig {
   /** Can rotation (deg) at each step; 90 = lying on its side, top to the right. */
   rotation: Record<Step, number>;
-  /** Label shift (% of label width) at each step — unwrapped, so spins keep one direction. */
+  /** Label shift (% of label width) at each step — each shows Figma's panel for that frame. */
   labelShift: Record<Step, number>;
   /**
    * ScrollTrigger scrub. `true` = playhead locked to scroll (use when Lenis already
@@ -26,9 +27,8 @@ export const DESKTOP: CanTimelineConfig = {
   labelShift: {
     hero: LABEL_SHIFT.hero,
     story: LABEL_SHIFT.story,
-    // Same artwork as Figma's −37.8 %, two panels further on, so the label keeps
-    // travelling left instead of spinning back.
-    products: LABEL_SHIFT.products - 2 * LABEL_PERIOD,
+    // Figma's own values: like Smart Animate, the label slides back on 2 → 3.
+    products: LABEL_SHIFT.products,
   },
   scrub: true,
   snapDuration: { min: 0.4, max: 1.1 },
@@ -115,6 +115,15 @@ export function createCanTimeline(
   gsap.set(els.layer, { autoAlpha: 1 });
   gsap.set([...els.staticCans, els.targets.products], { autoAlpha: 0 });
 
+  // Same as GSAP's 'labelsDirectional', but a no-op while an in-page link scrolls.
+  const snapToLabel = (progress: number, self?: ScrollTrigger) => {
+    if (isNavigating()) return progress;
+    const stops = Object.values(tl.labels)
+      .map((time) => time / tl.duration())
+      .sort((a, b) => a - b);
+    return ScrollTrigger.snapDirectional(stops)(progress, self?.direction ?? 0);
+  };
+
   const tl = gsap.timeline({
     defaults: { duration: 1, ease: 'power1.inOut' },
     scrollTrigger: {
@@ -125,7 +134,7 @@ export function createCanTimeline(
       scrub: config.scrub,
       invalidateOnRefresh: true,
       snap: {
-        snapTo: 'labelsDirectional',
+        snapTo: snapToLabel,
         duration: config.snapDuration,
         delay: 0.08,
         ease: 'power2.inOut',

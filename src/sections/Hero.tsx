@@ -13,20 +13,25 @@ export function Hero() {
       aria-labelledby="hero-title"
       className="relative isolate h-svh min-h-[34rem] overflow-hidden short:min-h-0"
     >
-      {/* h1 positions (optical centre: +0.09em); the inner span is what GSAP animates. */}
-      <h1
-        id="hero-title"
-        className="absolute inset-x-0 top-[40%] -translate-y-[calc(50%-0.09em)] text-center font-display text-[clamp(4.5rem,min(29.6vw,52svh),36rem)] leading-[0.8] tracking-[-0.03em] sm:top-[44.4%]"
-      >
-        {/* pr offsets the trailing negative letter-spacing so the ink is centred. */}
-        <span data-anim="hero-title" className="text-gradient-headline block pr-[0.03em]">
-          Nitro
-        </span>
-      </h1>
+      {/* Zero-height centre line shared by the headline and the can, so the can always
+          crosses the middle of the word whatever the viewport height. */}
+      <div className="absolute inset-x-0 top-[40%] h-0 sm:top-[44.4%]">
+        {/* mt = optical centre of the caps (line box centre sits above the ink).
+            The inner span is what GSAP animates — the h1 only positions. */}
+        <h1
+          id="hero-title"
+          className="absolute inset-x-0 top-0 mt-[0.09em] -translate-y-1/2 text-center font-display text-[clamp(4.5rem,min(29.6vw,52svh),36rem)] leading-[0.8] tracking-[-0.03em]"
+        >
+          {/* pr offsets the trailing negative letter-spacing so the ink is centred. */}
+          <span data-anim="hero-title" className="text-gradient-headline block pr-[0.03em]">
+            Nitro
+          </span>
+        </h1>
 
-      <CanSlot step="hero" className="top-[40%] z-10 sm:top-[44.4%]">
-        <Can label={featuredProduct.label} labelShift={LABEL_SHIFT.hero} />
-      </CanSlot>
+        <CanSlot step="hero" className="top-0 z-10">
+          <Can label={featuredProduct.label} labelShift={LABEL_SHIFT.hero} />
+        </CanSlot>
+      </div>
 
       <div
         data-anim="hero-bottom"

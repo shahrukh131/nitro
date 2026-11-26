@@ -1,8 +1,9 @@
-import { spinBy } from './canSpin';
+import { spinRest, spinTurn } from './canSpin';
 import { gsap } from './gsap';
 
 /**
- * Product cards: on hover / keyboard focus the can lifts and spins one turn.
+ * Product cards: on hover / keyboard focus the can lifts and turns once; on
+ * leave it turns back, so it always rests on the exact design artwork.
  * Returns a cleanup that removes every listener.
  */
 export function bindHoverSpin(scope: ParentNode): () => void {
@@ -12,10 +13,11 @@ export function bindHoverSpin(scope: ParentNode): () => void {
     if (!can || !label) return () => {};
 
     const enter = () => {
-      spinBy(label, 1);
+      spinTurn(label);
       gsap.to(can, { yPercent: -3, duration: 0.5, ease: 'power2.out', overwrite: 'auto' });
     };
     const leave = () => {
+      spinRest(label, { duration: 0.9 });
       gsap.to(can, { yPercent: 0, duration: 0.6, ease: 'power2.inOut', overwrite: 'auto' });
     };
 

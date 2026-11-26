@@ -112,18 +112,29 @@ colour fails WCAG AA on black (e.g. BLUE).
 
 - Natively **upright**, aspect width/height = 0.379. Size by height (H) with fixed aspect ratio.
 - Layers: rounded clip (`overflow: hidden`) → can body image → wide label (4.32 × can width,
-  color-burn blend, masked to can) → shine gradient → shadow ellipse.
+  color-burn blend, masked to can) → glint layer (invisible at rest) → shadow ellipse.
 - Spin = moving the label horizontally (`xPercent`) inside the clip.
-- The Figma label's 3 panels are NOT identical, so `tint-labels` tiles the middle panel 3× →
-  strip repeats every `LABEL_PERIOD` (33.33%). Spins wrap into [-66.67%, 0) via a GSAP modifier,
-  so any number of turns is seamless. Use `spinTo` / `spinBy` from `animations/canSpin.ts`.
+- Label strip = Figma's ORIGINAL export (3 similar but NOT identical panels). Hero / story /
+  products each show a different panel at `LABEL_SHIFT` −6.4 / −68.3 / −37.8 %, exactly like
+  Figma — do not tile or wrap (a tiled strip made hero/story art visibly differ from Figma).
+  Valid range `LABEL_SHIFT_RANGE` [−76.85, 0]. Scroll tweens Figma's values directly (label slides
+  back on 2→3, as Smart Animate does). Helpers in `animations/canSpin.ts`: `spinTo`, `spinTurn`
+  (one panel away, staying on the strip), `spinRest`.
+- Verified against Figma 1920 renders (can box ±1px; label art diff ≈ 5–7 after alignment;
+  brightness within 1 RGB unit). Method: puppeteer render + pixel diff/registration vs
+  `get_screenshot` of frames 1:2 / 1:48 / 1:150.
 - `Can` takes a React 19 `ref` → `CanHandle { wrapper, label, shine }`; also `data-can`,
   `data-can-label` (+ `data-label-shift`), `data-can-shine` for selector-based animation.
   Inline label transform is first-paint only; `primeLabels()` hands it to GSAP.
-- Shine (`can-shine` utility) is fixed — light source doesn't rotate, which sells the cylinder.
+- No shine at rest: Figma's can is body + colour-burned label only (the body image already has
+  the cylinder shading); an extra highlight/edge gradient darkened it and added a stripe.
+  `can-shine` is an `opacity: 0` glint for optional use during spins.
 - Side cans reuse the same label with a hue tint — pre-render tinted WebPs (no runtime blend).
-- Product cards: hover/focus = lift + one-turn spin (`animations/hoverSpin.ts`), only for
-  `(hover: hover)` and no reduced motion.
+- Product cards: hover/focus = lift + one turn out; leave = turn back to rest
+  (`animations/hoverSpin.ts`), only for `(hover: hover)` and no reduced motion.
+- Hero headline + can share one zero-height "centre line" div (`Hero.tsx`); the h1 uses
+  `mt-[0.09em]` as optical offset. Can crosses the word ~6–9px above the ink centre, as in Figma.
+- After hot-reloading markup GSAP has touched, hard-reload: stale GSAP inline styles survive HMR.
 
 ## Scroll timeline
 

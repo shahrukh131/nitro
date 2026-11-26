@@ -3,9 +3,8 @@
  * (hue of the flavour colour, saturation + luminosity of the base label) —
  * the same effect Figma uses — so the browser never has to blend at runtime.
  *
- * The Figma label is three near-identical panels. To make the spin loop
- * seamlessly we cut out the middle panel and tile it PANELS times, so shifting
- * the label by exactly one panel width is invisible.
+ * The strip is kept exactly as exported from Figma (three similar but not
+ * identical panels): each scroll step shows the same panel Figma does.
  *
  * Run: npm run tint-labels
  */
@@ -15,7 +14,6 @@ import { flavours } from '../src/data/flavours.ts';
 
 const SOURCE = 'src/assets/images/label.png';
 const OUT_DIR = 'src/assets/labels';
-const PANELS = 3;
 
 type RGB = [number, number, number];
 
@@ -51,23 +49,7 @@ function hexToRgb(hex: string): RGB {
 
 async function main() {
   await mkdir(OUT_DIR, { recursive: true });
-  const meta = await sharp(SOURCE).metadata();
-  const panelWidth = Math.floor(meta.width / PANELS);
-  const panel = await sharp(SOURCE)
-    .removeAlpha()
-    .extract({ left: panelWidth, top: 0, width: panelWidth, height: meta.height })
-    .toBuffer();
-  // `composite` always runs last in a sharp pipeline and adds alpha, so tile first,
-  // then strip alpha in a second pass to get packed RGB.
-  const strip = await sharp({
-    create: { width: panelWidth * PANELS, height: meta.height, channels: 3, background: '#000' },
-  })
-    .composite(
-      Array.from({ length: PANELS }, (_, i) => ({ input: panel, left: i * panelWidth, top: 0 })),
-    )
-    .png()
-    .toBuffer();
-  const { data, info } = await sharp(strip)
+  const { data, info } = await sharp(SOURCE)
     .removeAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
