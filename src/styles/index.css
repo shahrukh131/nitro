@@ -1,5 +1,15 @@
 @import 'tailwindcss';
 
+/* Sakana by Drizy Studio — 1001Fonts "Free for personal use" licence (non-commercial demo).
+   Subset to Latin-1 WOFF2 (~7 KB). */
+@font-face {
+  font-family: 'Sakana';
+  src: url('../assets/fonts/sakana.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Landscape phones and other short viewports. */
 @custom-variant short (@media (max-height: 31.25rem) and (orientation: landscape));
 
@@ -20,8 +30,8 @@
   --color-shine: rgb(255 255 255 / 0.14);
   --color-can-edge: rgb(0 0 0 / 0.5);
 
-  /* Fonts — `--font-display` is a placeholder until the Sakana files arrive. */
-  --font-display: 'Exo 2 Variable', 'Arial Black', sans-serif;
+  /* Sakana: single weight; its lowercase are small-cap glyphs ("Nitro" renders as NiTRO). */
+  --font-display: 'Sakana', 'Arial Black', sans-serif;
   --font-sans: 'Outfit Variable', 'Outfit', system-ui, sans-serif;
 
   /* Radii */
@@ -76,6 +86,8 @@
     background-color: var(--color-ink);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Single-weight display font: never fake bold/italic. */
+    font-synthesis: none;
   }
 
   body {

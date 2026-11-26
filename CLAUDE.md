@@ -73,6 +73,9 @@ scripts/          tint-labels.ts (Node type-stripping; reads src/data/flavours.t
 6. Design tokens are CSS variables used through Tailwind (`@theme`). No hex values in components.
 7. Animate only `transform` and `opacity`. Clean up ScrollTrigger on unmount/resize.
 8. Comments only where the motion maths isn't obvious.
+9. Never put Tailwind `translate-*` / `rotate-*` / `scale-*` on an element GSAP animates: GSAP folds
+   the CSS `translate` property into its transform and reads `calc()` values as 0 (the story
+   headline jumped ~300px). Position the outer element, animate an inner one (`data-anim`).
 
 ## Design tokens (from Figma)
 
@@ -84,8 +87,12 @@ scripts/          tint-labels.ts (Node type-stripping; reads src/data/flavours.t
 - Buttons: square corners, padding 45×10px, 16px Outfit Medium. Solid = accent (nav) / white (hero); outline = 1px white
 - Social icons: 42px circles, 1px accent border, gap 32px (Facebook, Instagram, X, LinkedIn)
 - Story photo card: radius 40px, B&W football photo
-- Story text: Sakana 185px, accent, 4 visual lines "Since / 2002 / Prod / ucing" (sr-only full text)
-- Hero headline: ~91vw wide → `clamp(4.5rem, min(31.5vw, 56svh), 38rem)` with Exo 2 (retune for Sakana)
+- Sakana is single-weight and its lowercase are stylised small caps ("Nitro" → NiTRO). Use the
+  Figma casing, never `uppercase`, and never bold classes (`font-synthesis: none` is set).
+- Story text: 9.64vw (185px @1920), leading 0.93, lines "Since / 2002 / prod / ucing" (sr-only
+  full text); desktop optical offset `-translate-y-[calc(50%-0.14em)]` — ink box matches Figma ±1px.
+- Hero headline: `clamp(4.5rem, min(29.6vw, 52svh), 36rem)` (568px @1920), optical offset
+  `+0.09em`, `pr-[0.03em]` to cancel trailing letter-spacing — ink box matches Figma ±2px.
 - Nav link "Galleru" in Figma is a typo → "Gallery"
 
 ## Products (`data/products.ts`, order left → right)
@@ -179,7 +186,7 @@ Breakpoints: mobile < 640, tablet 640–1023, desktop ≥ 1024 (scale up to 1920
   (focus trap, Esc closes, focus returns to toggle).
 - Hero mobile: headline fits width, CTAs stacked full-width, socials move to footer.
 - Story mobile: text on top, photo below, can over photo.
-- Text sizes via `clamp()` (headline `clamp(5rem, 22vw, 26rem)`). Use `100svh`.
+- Text sizes via `clamp()` (see Design tokens for the headline values). Use `100svh`.
 - Test at 375, 768, 1024, 1440, 1920 and landscape phone.
 
 ## Quality bar
@@ -196,9 +203,9 @@ Breakpoints: mobile < 640, tablet 640–1023, desktop ≥ 1024 (scale up to 1920
 ## Decisions
 
 - React 19 (user-approved; `@gsap/react` supports it).
-- Display font: Sakana files will be supplied later. Until then use Exo 2 (variable, weight 800–900)
-  as a placeholder — chosen because its glyph width (~0.6em) is close to Sakana's, so layout holds.
-  All display text goes through `--font-display`, so swapping is a one-line change.
+- Display font: **Sakana** (Drizy Studio, 1001fonts) self-hosted as `src/assets/fonts/sakana.woff2`
+  (Latin-1 subset, ~7 KB; no `©` glyph). Licence = "Free for personal use" — fine for this
+  non-commercial assessment, a commercial licence is needed for real use. Exo 2 placeholder removed.
 - Images: `vite-imagetools` for AVIF/WebP + `srcset`; `sharp` (dev) only in
   `scripts/tint-labels.mjs` to pre-render the flavour-tinted labels.
 - Deploy target: undecided (Vercel or Netlify) — keep config host-agnostic until chosen.

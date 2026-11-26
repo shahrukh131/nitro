@@ -7,8 +7,8 @@ export function Footer() {
       className="flex flex-col items-center gap-6 border-t border-white/10 px-gutter py-10 text-sm text-muted sm:flex-row sm:justify-between"
     >
       <p>
-        <span className="font-display font-black text-accent uppercase">Nitro</span> — a fictional
-        energy drink. © {new Date().getFullYear()}
+        <span className="font-display text-accent">Nitro</span> — a fictional energy drink. ©{' '}
+        {new Date().getFullYear()}
       </p>
       <SocialLinks />
     </footer>

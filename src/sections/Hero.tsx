@@ -13,12 +13,15 @@ export function Hero() {
       aria-labelledby="hero-title"
       className="relative isolate h-svh min-h-[34rem] overflow-hidden short:min-h-0"
     >
+      {/* h1 positions (optical centre: +0.09em); the inner span is what GSAP animates. */}
       <h1
         id="hero-title"
-        data-anim="hero-title"
-        className="text-gradient-headline absolute inset-x-0 top-[40%] -translate-y-1/2 text-center font-display text-[clamp(4.5rem,min(31.5vw,56svh),38rem)] leading-[0.8] font-black tracking-[-0.03em] uppercase sm:top-[44.4%]"
+        className="absolute inset-x-0 top-[40%] -translate-y-[calc(50%-0.09em)] text-center font-display text-[clamp(4.5rem,min(29.6vw,52svh),36rem)] leading-[0.8] tracking-[-0.03em] sm:top-[44.4%]"
       >
-        Nitro
+        {/* pr offsets the trailing negative letter-spacing so the ink is centred. */}
+        <span data-anim="hero-title" className="text-gradient-headline block pr-[0.03em]">
+          Nitro
+        </span>
       </h1>
 
       <CanSlot step="hero" className="top-[40%] z-10 sm:top-[44.4%]">

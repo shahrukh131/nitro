@@ -8,7 +8,7 @@ export function Navbar() {
       <nav aria-label="Main" className="flex items-center justify-between gap-6">
         <a
           href="#home"
-          className="font-display text-[clamp(1.25rem,1.25vw,1.5rem)] font-black tracking-[-0.03em] text-accent uppercase"
+          className="font-display text-[clamp(1.25rem,1.25vw,1.5rem)] tracking-[-0.03em] text-accent"
         >
           Nitro
         </a>

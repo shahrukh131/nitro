@@ -52,7 +52,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
         data-anim="product-info"
         className="mt-[clamp(1.5rem,4.2svh,3rem)] flex flex-col gap-0.5 leading-normal"
       >
-        <h3 className="font-display text-[clamp(1.125rem,1.25vw,1.5rem)] font-extrabold text-(--flavour-text) uppercase">
+        <h3 className="font-display text-[clamp(1.125rem,1.25vw,1.5rem)] text-(--flavour-text)">
           {name}
         </h3>
         <p className="text-[clamp(0.9375rem,0.9vw,1.0625rem)] text-muted">{tagline}</p>
