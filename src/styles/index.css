@@ -1,0 +1,127 @@
+@import 'tailwindcss';
+
+/* Landscape phones and other short viewports. */
+@custom-variant short (@media (max-height: 31.25rem) and (orientation: landscape));
+
+/* ─── Design tokens ─────────────────────────────────────────────────────── */
+@theme {
+  /* Colours */
+  --color-accent: #e0e600;
+  --color-accent-mid: #aeb300;
+  --color-accent-deep: #7d8000;
+  --color-ink: #000;
+  --color-ink-soft: #272727;
+  --color-ink-mid: #141414;
+  --color-ink-deep: #0a0a0a;
+  --color-floor: #212121;
+  --color-floor-lit: #828282;
+  --color-floor-rim: #3c3c3c;
+  --color-muted: rgb(255 255 255 / 0.62);
+
+  /* Fonts — `--font-display` is a placeholder until the Sakana files arrive. */
+  --font-display: 'Exo 2 Variable', 'Arial Black', sans-serif;
+  --font-sans: 'Outfit Variable', 'Outfit', system-ui, sans-serif;
+
+  /* Radii */
+  --radius-card: clamp(1.25rem, 2.1vw, 2.5rem);
+
+  /* Spacing */
+  --spacing-gutter: clamp(1.25rem, 4.6vw, 5.5rem);
+  --spacing-nav: clamp(1rem, 2.9svh, 2rem);
+}
+
+/* ─── Can geometry ──────────────────────────────────────────────────────────
+   --can-h is the height of the upright "products" centre can. Every other can
+   size is a multiple of it, so the static layout and the scroll timeline share
+   one source of truth. Values per breakpoint come from the Figma frames
+   (desktop: 676px tall on a 1920×1098 frame). */
+:root {
+  --can-aspect: 0.3793; /* width / height of the upright can */
+  --can-label-ratio: 4.32; /* label width / can width */
+
+  /* mobile — the can lies across ~2/3 of the headline, as on desktop */
+  --can-h: min(42svh, 66vw);
+  --can-scale-hero: 1;
+  --can-scale-story: 1;
+  --can-scale-md: 0.86;
+  --can-scale-sm: 0.86;
+}
+
+@media (width >= 40rem) {
+  :root {
+    --can-h: min(52svh, 40vw);
+    --can-scale-hero: 1.75;
+    --can-scale-story: 2.05;
+    --can-scale-md: 0.86;
+    --can-scale-sm: 0.86;
+  }
+}
+
+@media (width >= 64rem) {
+  :root {
+    --can-h: min(61.6svh, 35.2vw);
+    --can-scale-hero: 1.325;
+    --can-scale-story: 2.2;
+    --can-scale-md: 0.772;
+    --can-scale-sm: 0.653;
+  }
+}
+
+/* ─── Base ──────────────────────────────────────────────────────────────── */
+@layer base {
+  html {
+    color-scheme: dark;
+    background-color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply min-h-svh font-sans text-white;
+    overflow-x: clip;
+  }
+
+  /* Page background: one fixed layer, so sections stay transparent. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(
+      54.5% 54.5% at 50% 46.5%,
+      var(--color-ink-soft) 0%,
+      var(--color-ink-mid) 50%,
+      var(--color-ink-deep) 75%,
+      var(--color-ink) 100%
+    );
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-ink);
+  }
+}
+
+/* ─── Utilities ─────────────────────────────────────────────────────────── */
+@utility text-gradient-headline {
+  background-image: radial-gradient(
+    48% 70% at 54% 68%,
+    var(--color-accent-deep) 0%,
+    var(--color-accent-mid) 50%,
+    var(--color-accent) 100%
+  );
+  background-clip: text;
+  color: transparent;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
