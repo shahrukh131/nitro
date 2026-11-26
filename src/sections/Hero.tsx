@@ -15,6 +15,7 @@ export function Hero() {
     >
       <h1
         id="hero-title"
+        data-anim="hero-title"
         className="text-gradient-headline absolute inset-x-0 top-[40%] -translate-y-1/2 text-center font-display text-[clamp(4.5rem,min(31.5vw,56svh),38rem)] leading-[0.8] font-black tracking-[-0.03em] uppercase sm:top-[44.4%]"
       >
         Nitro
@@ -24,7 +25,10 @@ export function Hero() {
         <Can label={featuredProduct.label} labelShift={LABEL_SHIFT.hero} />
       </CanSlot>
 
-      <div className="absolute inset-x-gutter bottom-[max(1.5rem,6svh)] z-20 grid items-center gap-5 sm:grid-cols-2 sm:gap-y-8 lg:bottom-[14svh] lg:grid-cols-[1fr_auto_1fr] short:bottom-4">
+      <div
+        data-anim="hero-bottom"
+        className="absolute inset-x-gutter bottom-[max(1.5rem,6svh)] z-20 grid items-center gap-5 sm:grid-cols-2 sm:gap-y-8 lg:bottom-[14svh] lg:grid-cols-[1fr_auto_1fr] short:bottom-4"
+      >
         <p className="max-w-[29rem] text-sm leading-normal uppercase sm:text-base short:hidden">
           {heroCopy}
         </p>

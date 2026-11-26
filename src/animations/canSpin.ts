@@ -12,6 +12,11 @@ const wrapModifier = { xPercent: (value: number) => wrapShift(Number(value)) };
 
 const SPIN_DEFAULTS: gsap.TweenVars = { duration: 1.2, ease: 'power2.inOut' };
 
+/** Tween vars for a label position inside a timeline (keeps the wrap). */
+export function labelShiftVars(shift: number): gsap.TweenVars {
+  return { xPercent: shift, modifiers: wrapModifier };
+}
+
 /** Resting label position the component was rendered with. */
 function restShift(label: HTMLElement): number {
   return Number(label.dataset.labelShift ?? 0);

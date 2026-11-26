@@ -36,15 +36,22 @@ export function ProductCard({ product, className }: ProductCardProps) {
         />
         <div
           aria-hidden
+          data-glow
           className={cx(
-            'absolute bottom-0 left-1/2 -z-10 aspect-[6.6] w-[108%] -translate-x-1/2 translate-y-[45%] rounded-[50%] border-[3px] border-floor-rim bg-floor-lit shadow-[0_4px_30px_color-mix(in_srgb,var(--flavour-glow)_45%,transparent)] transition-opacity duration-500',
-            featured ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+            'absolute bottom-0 left-1/2 -z-10 aspect-[6.6] w-[108%] -translate-x-1/2 translate-y-[45%] rounded-[50%] border-[3px] border-floor-rim bg-floor-lit shadow-[0_4px_30px_color-mix(in_srgb,var(--flavour-glow)_45%,transparent)]',
+            // The featured glow is driven by the scroll timeline, so no CSS transition on it.
+            featured
+              ? 'opacity-100'
+              : 'opacity-0 transition-opacity duration-500 group-hover:opacity-100',
           )}
         />
         <Can label={label} alt={`${name} can`} />
       </div>
 
-      <div className="mt-[clamp(1.5rem,4.2svh,3rem)] flex flex-col gap-0.5 leading-normal">
+      <div
+        data-anim="product-info"
+        className="mt-[clamp(1.5rem,4.2svh,3rem)] flex flex-col gap-0.5 leading-normal"
+      >
         <h3 className="font-display text-[clamp(1.125rem,1.25vw,1.5rem)] font-extrabold text-(--flavour-text) uppercase">
           {name}
         </h3>

@@ -120,12 +120,29 @@ colour fails WCAG AA on black (e.g. BLUE).
 
 ## Scroll timeline
 
-- 3 sections, each `100svh`, in normal flow. Can is a `position: fixed` layer centred in viewport.
-- One ScrollTrigger over `main`: `scrub: 1`, snap to labels `hero` / `story` / `products`
-  (duration 0.5–1.2s, `power2.inOut`).
-- Story z-order: photo (0) < fixed can (10) < headline (20).
-- **Handoff:** at step 3 the fixed can is swapped for the in-flow centre product can (same frame,
-  same position), so the footer scrolls and the mobile carousel can swipe.
+- 3 sections, each `100svh`, in normal flow. `FixedCan` = `position: fixed` layer (`data-fixed-can`,
+  z-10, `invisible` until the timeline shows it) centred in the viewport at products size.
+- `animations/canTimeline.ts` → `createCanTimeline(root, can, config)`: one ScrollTrigger from hero
+  top to products top, snap `labelsDirectional` (`hero` 0 / `story` 1 / `products` 2).
+  Desktop `scrub: true`: Lenis already smooths, and a numeric scrub makes the fixed can trail the
+  page (it visibly sank below its product slot when scrolling into the footer).
+  Poses are **measured** (`measure()`: slot rect relative to its section, scale = slot height /
+  can height) via function values + `invalidateOnRefresh`. Configs hold only rotation, label
+  shifts, scrub, snap timing.
+- Hooks for section motion: `data-anim="hero-title|hero-bottom|story-title|product-card|product-info"`,
+  `data-featured` on the featured card `<li>`, `data-glow` on product glow.
+- Story z-order: photo < fixed can (z-10) < headline (z-20) — so `#story` must NOT be `isolate`.
+- **Handoff:** at `products` the fixed layer hides and the featured card's can shows (identical
+  pose + label), so the footer scrolls normally. Driven by a separate non-scrubbed ScrollTrigger
+  (`start: 'top top+=2'`, `onEnter` / `onLeaveBack` / `onRefresh`) on the REAL scroll position —
+  never by `tl.set` on the playhead, and not `onToggle` (inactive again at page bottom).
+- Regression check for this: real `mouse.wheel` flicks story → footer → back, sampling every
+  ~80ms; there must be no frame with the fixed can visible past the products top.
+- Wired in `App.tsx` via `gsap.matchMedia`: desktop timeline = `(prefers-reduced-motion:
+no-preference) and (min-width: 64rem)`. Lenis (`hooks/useLenis.ts`) runs on gsap.ticker for
+  ≥640px without reduced motion; ScrollTrigger snap works with it as-is.
+- Testing tip: in the Vite dev server, `await import('/src/animations/gsap.ts')` from page JS
+  returns the live ScrollTrigger instance (used by the puppeteer checks).
 
 ### Desktop (≥1024) — H = `min(61.6svh, 35.2vw)` (= 676px at 1920×1098)
 

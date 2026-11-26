@@ -12,10 +12,11 @@ export function Story() {
     <section
       id="story"
       aria-labelledby="story-title"
-      className="relative isolate flex min-h-svh flex-col gap-8 px-gutter pt-[calc(var(--spacing-nav)+5rem)] pb-12 sm:flex-row-reverse sm:items-center sm:gap-[4vw] sm:pt-[calc(var(--spacing-nav)+2.75rem)] sm:pb-6 lg:block lg:h-svh lg:px-0"
+      className="relative flex min-h-svh flex-col gap-8 px-gutter pt-[calc(var(--spacing-nav)+5rem)] pb-12 sm:flex-row-reverse sm:items-center sm:gap-[4vw] sm:pt-[calc(var(--spacing-nav)+2.75rem)] sm:pb-6 lg:block lg:h-svh lg:px-0"
     >
       <h2
         id="story-title"
+        data-anim="story-title"
         className="relative z-20 font-display text-[clamp(3.5rem,16vw,6rem)] leading-[0.88] font-black tracking-[-0.02em] text-accent uppercase sm:shrink-0 sm:text-[clamp(2.5rem,min(10vw,15svh),6.5rem)] lg:absolute lg:top-1/2 lg:left-[65.5%] lg:-translate-y-1/2 lg:text-[9.2vw]"
       >
         <span className="sr-only">Since 2002 producing</span>

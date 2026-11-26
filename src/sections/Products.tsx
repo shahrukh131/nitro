@@ -17,6 +17,8 @@ export function Products() {
         {products.map((product) => (
           <li
             key={product.id}
+            data-anim="product-card"
+            data-featured={product.featured || undefined}
             className={cx(
               'w-[68vw] shrink-0 snap-center sm:w-[33.333vw] lg:w-auto',
               !product.featured && 'lg:mb-[3.2svh]',
