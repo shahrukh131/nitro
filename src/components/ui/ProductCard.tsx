@@ -41,11 +41,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
             featured ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
           )}
         />
-        <Can
-          label={label}
-          alt={`${name} can`}
-          className="transition-transform duration-500 ease-out group-hover:-translate-y-[3%]"
-        />
+        <Can label={label} alt={`${name} can`} />
       </div>
 
       <div className="mt-[clamp(1.5rem,4.2svh,3rem)] flex flex-col gap-0.5 leading-normal">

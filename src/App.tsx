@@ -1,3 +1,7 @@
+import { useRef } from 'react';
+import { primeLabels } from './animations/canSpin';
+import { gsap, useGSAP } from './animations/gsap';
+import { bindHoverSpin } from './animations/hoverSpin';
 import { Footer } from './components/layout/Footer';
 import { Navbar } from './components/layout/Navbar';
 import { Hero } from './sections/Hero';
@@ -5,8 +9,25 @@ import { Products } from './sections/Products';
 import { Story } from './sections/Story';
 
 export default function App() {
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      const root = rootRef.current;
+      if (!root) return;
+
+      primeLabels(root);
+
+      const mm = gsap.matchMedia();
+      mm.add('(prefers-reduced-motion: no-preference) and (hover: hover)', () =>
+        bindHoverSpin(root),
+      );
+    },
+    { scope: rootRef },
+  );
+
   return (
-    <>
+    <div ref={rootRef}>
       <a
         href="#main"
         className="fixed top-2 left-2 z-[100] -translate-y-[200%] bg-accent px-4 py-2 font-medium text-ink focus-visible:translate-y-0"
@@ -20,6 +41,6 @@ export default function App() {
         <Products />
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

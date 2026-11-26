@@ -23,8 +23,9 @@ Design source: Figma `ATbjoNJohvEAdmKZ3GzwPs` — frames `1:2` Hero, `1:48` Stor
 
 ## Process
 
-Build in stages, stop after each to show the result, then make a conventional commit
-(`feat:`, `fix:`, `chore:`, `refactor:`, `docs:`, `perf:`):
+Build in stages and stop after each to show the result. **Never run `git commit`** — the user
+commits. Suggest a conventional commit message (`feat:`, `fix:`, `chore:`, `refactor:`, `docs:`,
+`perf:`) instead:
 
 - a. Static, fully responsive layout (no animation)
 - b. Can component with spin and shine
@@ -106,7 +107,16 @@ colour fails WCAG AA on black (e.g. BLUE).
 - Layers: rounded clip (`overflow: hidden`) → can body image → wide label (4.32 × can width,
   color-burn blend, masked to can) → shine gradient → shadow ellipse.
 - Spin = moving the label horizontally (`xPercent`) inside the clip.
+- The Figma label's 3 panels are NOT identical, so `tint-labels` tiles the middle panel 3× →
+  strip repeats every `LABEL_PERIOD` (33.33%). Spins wrap into [-66.67%, 0) via a GSAP modifier,
+  so any number of turns is seamless. Use `spinTo` / `spinBy` from `animations/canSpin.ts`.
+- `Can` takes a React 19 `ref` → `CanHandle { wrapper, label, shine }`; also `data-can`,
+  `data-can-label` (+ `data-label-shift`), `data-can-shine` for selector-based animation.
+  Inline label transform is first-paint only; `primeLabels()` hands it to GSAP.
+- Shine (`can-shine` utility) is fixed — light source doesn't rotate, which sells the cylinder.
 - Side cans reuse the same label with a hue tint — pre-render tinted WebPs (no runtime blend).
+- Product cards: hover/focus = lift + one-turn spin (`animations/hoverSpin.ts`), only for
+  `(hover: hover)` and no reduced motion.
 
 ## Scroll timeline
 

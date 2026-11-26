@@ -17,6 +17,8 @@
   --color-floor-lit: #828282;
   --color-floor-rim: #3c3c3c;
   --color-muted: rgb(255 255 255 / 0.62);
+  --color-shine: rgb(255 255 255 / 0.14);
+  --color-can-edge: rgb(0 0 0 / 0.5);
 
   /* Fonts — `--font-display` is a placeholder until the Sakana files arrive. */
   --font-display: 'Exo 2 Variable', 'Arial Black', sans-serif;
@@ -117,6 +119,28 @@
   );
   background-clip: text;
   color: transparent;
+}
+
+/* Clips a can layer to the can silhouette (needs --can-body set on an ancestor). */
+@utility can-mask {
+  mask-image: var(--can-body);
+  mask-size: 100% 100%;
+}
+
+/* Fixed light on the cylinder: dark rims + a soft specular band left of centre.
+   It never moves, so the label sliding beneath it reads as rotation. */
+@utility can-shine {
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    var(--color-can-edge) 0%,
+    transparent 16%,
+    transparent 24%,
+    var(--color-shine) 33%,
+    transparent 44%,
+    transparent 80%,
+    var(--color-can-edge) 100%
+  );
 }
 
 @utility no-scrollbar {
