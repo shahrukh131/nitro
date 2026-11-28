@@ -9,7 +9,7 @@ Design source: Figma `ATbjoNJohvEAdmKZ3GzwPs` — frames `1:2` Hero, `1:48` Stor
 - Vite + React + TypeScript (`strict`, no `any`)
 - Tailwind CSS v4 via `@tailwindcss/vite`
 - gsap + ScrollTrigger + SplitText, `@gsap/react` (`useGSAP`)
-- lenis (desktop + tablet only, driven by `gsap.ticker`, synced with ScrollTrigger)
+- lenis (all breakpoints, wheel only — touch stays native; driven by `gsap.ticker`, synced with ScrollTrigger)
 - Mobile carousel: CSS scroll-snap
 - NOT allowed: Framer Motion, Three.js, UI kits
 - Extras: `vite-imagetools`, `sharp` (dev, label tint pre-render), `@fontsource` Outfit,
@@ -38,7 +38,7 @@ commits. Suggest a conventional commit message (`feat:`, `fix:`, `chore:`, `refa
 ```
 src/
 ├── components/
-│   ├── layout/   Navbar, MobileMenu, Footer, Loader
+│   ├── layout/   Navbar, MobileMenu, Loader
 │   ├── can/      Can.tsx (ref → { wrapper, label, shine }), CanSlot.tsx (per-step position marker)
 │   └── ui/       Button (accent | light | outline), SocialLinks, ProductCard, icons
 ├── sections/     Hero, Story, Products
@@ -93,7 +93,9 @@ scripts/          tint-labels.ts (Node type-stripping; reads src/data/flavours.t
   full text); desktop optical offset `-translate-y-[calc(50%-0.14em)]` — ink box matches Figma ±1px.
 - Hero headline: `clamp(4.5rem, min(29.6vw, 52svh), 36rem)` (568px @1920), optical offset
   `+0.09em`, `pr-[0.03em]` to cancel trailing letter-spacing — ink box matches Figma ±2px.
-- Nav link "Galleru" in Figma is a typo → "Gallery"
+- Nav link "Galleru" in Figma is a typo → "Gallery". No footer and no "Contact" link (user
+  decision): products is the last screen. `[data-scene]` has `padding-bottom: calc(100dvh −
+100svh)` so a collapsed phone URL bar can't shrink the max scroll below the timeline end.
 
 ## Products (`data/products.ts`, order left → right)
 
@@ -138,27 +140,66 @@ colour fails WCAG AA on black (e.g. BLUE).
 
 ## Scroll timeline
 
-- 3 sections, each `100svh`, in normal flow. `FixedCan` = `position: fixed` layer (`data-fixed-can`,
-  z-10, `invisible` until the timeline shows it) centred in the viewport at products size.
-- `animations/canTimeline.ts` → `createCanTimeline(root, can, config)`: one ScrollTrigger from hero
-  top to products top, snap `labelsDirectional` (`hero` 0 / `story` 1 / `products` 2).
+- 3 sections, each `100svh`. Desktop: normal flow. Tablet + mobile: **stage mode** (below).
+  `FixedCan` = `position: fixed` layer (`data-fixed-can`, z-10, `invisible` until the timeline
+  shows it) centred in the viewport at products size. It lives INSIDE `<main>`: the sticky stage
+  makes `<main>` a stacking context, and the can must stay between story photo and headline.
+- **Stage mode** (config `stage: true`, tablet + mobile): the timeline sets
+  `[data-scene][data-stage]` on the wrapper around `<main>`. CSS stacks the sections in one grid
+  cell (`grid-template-columns: minmax(0,1fr)`, or the carousel's scroll width widens the page and
+  phones zoom out), `<main>` is `position: sticky`, and a 200svh `::after` spacer is the track
+  (timeline `end` reads its height). Sticky, NOT ScrollTrigger `pin`: the pin-spacer reparents
+  `<main>` (resets the carousel's scrollLeft) and fixed pinning jitters on iOS. Sticky ignores
+  padding/margins as track (it stays in the parent's content box), hence the spacer element.
+  Sections cross-fade (hero out 0.35, story switched on 0.3 / off 1.5 — not faded, opacity would
+  make it a stacking context and drop the headline under the can — products in 1.25).
+- **Scroll feel (all breakpoints) = Lenis + `scrub: true` + directional label snap**
+  (`inertia: false`: snap from where the scroll rests; the velocity prediction let a hard fling
+  skip a step). The page always follows the finger/wheel; touch keeps native momentum (Lenis
+  `syncTouch` off) and snaps after it stops. A gesture-hijacking stepper (Observer + touchmove
+  preventDefault + canned 1s tween per gesture) was tried and removed: it felt stuck-then-jumpy,
+  trackpad inertia fired double steps, and flings fought the tween at the scene edge.
+- Stage geometry must not depend on the dynamic viewport: the FixedCan layer is
+  `fixed inset-x-0 top-0 h-svh` (not `inset-0`, which follows the URL bar and drifted the can off
+  its slot), and stage sections are `height: 100svh; min-height: 0` (the flow layout's
+  `min-h-[34–38rem]` made the stuck scene taller than an iPhone SE's ~548px svh).
+- `animations/canTimeline.ts` → `createCanTimeline(root, can, config)` → `{ timeline, revert }`:
+  one ScrollTrigger (flow: hero top → products top, snap `labelsDirectional`; stage: scene track),
+  labels `hero` 0 / `story` 1 / `products` 2. Every segment is a `fromTo` (a `.to` re-read stale
+  start values on refresh: after a resize the hero step rendered at the story pose).
   Desktop `scrub: true`: Lenis already smooths, and a numeric scrub makes the fixed can trail the
-  page (it visibly sank below its product slot when scrolling into the footer).
+  page (it visibly sank below its product slot when scrolling past the end).
   Poses are **measured** (`measure()`: slot rect relative to its section, scale = slot height /
   can height) via function values + `invalidateOnRefresh`. Configs hold only rotation, label
-  shifts, scrub, snap timing.
-- Hooks for section motion: `data-anim="hero-title|hero-bottom|story-title|product-card|product-info"`,
+  shifts, scrub, snap, stage.
+- Hooks for section motion: `data-anim="hero-title|hero-bottom|story-title|story-line|story-photo|product-card|product-info"`,
   `data-featured` on the featured card `<li>`, `data-glow` on product glow.
 - Story z-order: photo < fixed can (z-10) < headline (z-20) — so `#story` must NOT be `isolate`.
 - **Handoff:** at `products` the fixed layer hides and the featured card's can shows (identical
-  pose + label), so the footer scrolls normally. Driven by a separate non-scrubbed ScrollTrigger
-  (`start: 'top top+=2'`, `onEnter` / `onLeaveBack` / `onRefresh`) on the REAL scroll position —
+  pose + label), so the carousel/hover work on the real card at the page end. Driven by a separate non-scrubbed ScrollTrigger
+  (`start` = timeline end − 2, `onEnter` / `onLeaveBack` / `onRefresh`) on the REAL scroll position —
   never by `tl.set` on the playhead, and not `onToggle` (inactive again at page bottom).
-- Regression check for this: real `mouse.wheel` flicks story → footer → back, sampling every
-  ~80ms; there must be no frame with the fixed can visible past the products top.
-- Wired in `App.tsx` via `gsap.matchMedia`: desktop timeline = `(prefers-reduced-motion:
-no-preference) and (min-width: 64rem)`. Lenis (`hooks/useLenis.ts`) runs on gsap.ticker for
-  ≥640px without reduced motion; ScrollTrigger snap works with it as-is.
+- Regression check for this: real `mouse.wheel` flicks story → page end → back, sampling every
+  ~80ms; there must be no frame with the fixed can visible past the timeline end (= products
+  top in flow mode; NOT `#products.offsetTop` in stage mode, which is 0). Touch: a held
+  `page.touchscreen` drag must move the scene continuously; release/flick settles on a label
+  (fixed vs slot ±1px); every section fits at 375×548. Also: swipe
+  the carousel away at products, scroll up to story and back — fixed and featured rects must match.
+- Wired in `App.tsx` via `gsap.matchMedia`, looping over `TIMELINES` (`canTimeline.ts`): one
+  config per breakpoint (`DESKTOP` flow, `TABLET` / `MOBILE` stage), each gated by motion. Shared
+  media queries live in `animations/media.ts`. Lenis (`hooks/useLenis.ts`) runs on gsap.ticker on
+  every breakpoint without reduced motion; the mobile menu has `data-lenis-prevent`. In-page
+  links use Lenis, or `scrollToY` (`animations/scrollTo.ts`) when it's off.
+- Carousel (< lg, `animations/carousel.ts`, `data-carousel`): `centreCarousel` opens it on the
+  featured card (also under reduced motion — scrollLeft 0 would show ENG). `measure()` adds
+  `carouselOffset()` so the products pose is always the home slot; on `onLeaveBack` the handoff
+  slides the carousel home and resets the featured label. Swipe settle (debounced `scroll`) spins
+  the newly centred can once (`spinShowcase`, ends at rest); hidden cans are skipped.
+- Mobile menu: `hooks/useMobileMenu.ts` (state only for ARIA/icon; timeline from
+  `animations/mobileMenu.ts` played in handlers). Overlay lives inside the header at `-z-10` so
+  logo + toggle stay on top. Scroll lock + `inert` on `#main` set synchronously; links
+  close it in `onClickCapture` (runs before stepNav's root listener). `gsap.matchMedia` with a
+  conditions object only runs when one condition matches — list both `reduced` and `motion`.
 - Testing tip: in the Vite dev server, `await import('/src/animations/gsap.ts')` from page JS
   returns the live ScrollTrigger instance (used by the puppeteer checks).
 
@@ -175,19 +216,23 @@ Side cans in Products: medium at ±20.5vw, small at ±39.4vw, bottoms aligned; r
 
 ### Tablet (640–1023) — H = `min(52svh, 40vw)`
 
-hero 90° scale 1.75 → story scale 2.05 (centred on photo) → products upright, 3 visible + swipe.
+hero 90° scale 1.35 → story scale 1.7 (centred on photo, largest that stays on screen) → products
+upright, 3 visible + swipe carousel. Stage mode.
 
 ### Mobile (<640) — H = `min(42svh, 66vw)` (hero can covers ~2/3 of the headline, like desktop)
 
-x = 0 throughout, scale 1 throughout; hero 90° → story over photo, label spins →
-products upright into active carousel slot. Lenis off.
+hero 90° scale 0.9 (≈2/3 of the headline) → story scale 1.4 across the photo (grows like desktop;
+at scale 1 → 1 the can just rode along with the page and read as "no animation") → products
+upright into the centred carousel slot (cards 48vw, neighbours peek). Stage mode.
+Every section is exactly one screen below lg (`h-svh`; story photo fills what the headline leaves).
 
 (Source of truth for H and scales is `src/styles/index.css`; positions come from the CanSlots.)
 
 ### Section content
 
 - Hero content: yPercent −30 + fade out.
-- Story headline: SplitText lines rise from yPercent 100; photo y 20svh → 0.
+- Story headline: the 4 line spans (`story-line`, already split — no SplitText needed) rise from
+  yPercent 100 with a stagger; photo inner (`story-photo`) y 20svh → 0 + fade. All breakpoints.
 
 ## Responsive
 
@@ -195,7 +240,7 @@ Breakpoints: mobile < 640, tablet 640–1023, desktop ≥ 1024 (scale up to 1920
 
 - Navbar: desktop logo/links/CTA; tablet tighter; mobile logo + hamburger → full-screen GSAP menu
   (focus trap, Esc closes, focus returns to toggle).
-- Hero mobile: headline fits width, CTAs stacked full-width, socials move to footer.
+- Hero mobile: headline fits width, CTAs stacked full-width, socials live in the mobile menu.
 - Story mobile: text on top, photo below, can over photo.
 - Text sizes via `clamp()` (see Design tokens for the headline values). Use `100svh`.
 - Test at 375, 768, 1024, 1440, 1920 and landscape phone.

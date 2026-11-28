@@ -1,8 +1,12 @@
 import { navLinks } from '../../data/site';
+import { useMobileMenu } from '../../hooks/useMobileMenu';
 import { Button } from '../ui/Button';
-import { MenuIcon } from '../ui/icons';
+import { CloseIcon, MenuIcon } from '../ui/icons';
+import { MobileMenu } from './MobileMenu';
 
 export function Navbar() {
+  const { open, toggle, menuRef, toggleRef, onMenuClickCapture } = useMobileMenu();
+
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-gutter pt-nav">
       <nav aria-label="Main" className="flex items-center justify-between gap-6">
@@ -33,15 +37,19 @@ export function Navbar() {
         </div>
 
         <button
+          ref={toggleRef}
           type="button"
-          aria-label="Open menu"
-          aria-expanded="false"
+          onClick={toggle}
+          aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-expanded={open}
           aria-controls="mobile-menu"
-          className="grid size-11 place-items-center text-white sm:hidden"
+          className="grid size-11 place-items-center text-white transition-colors duration-300 hover:text-accent sm:hidden"
         >
-          <MenuIcon />
+          {open ? <CloseIcon /> : <MenuIcon />}
         </button>
       </nav>
+
+      <MobileMenu ref={menuRef} onClickCapture={onMenuClickCapture} />
     </header>
   );
 }

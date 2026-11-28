@@ -13,14 +13,20 @@ export function Products() {
         Our flavours
       </h2>
 
-      <ul className="no-scrollbar flex snap-x snap-mandatory items-end overflow-x-auto px-[16vw] pt-[6svh] sm:px-[33.333vw] lg:justify-between lg:overflow-visible lg:px-[6.25vw]">
+      {/* Below lg this is a swipe carousel; tabIndex lets keyboard users scroll it with arrows. */}
+      <ul
+        data-carousel
+        tabIndex={0}
+        aria-label="Flavours"
+        className="no-scrollbar flex snap-x snap-mandatory items-end overflow-x-auto px-[26vw] pt-[6svh] sm:px-[33.333vw] lg:justify-between lg:overflow-visible lg:px-[6.25vw]"
+      >
         {products.map((product) => (
           <li
             key={product.id}
             data-anim="product-card"
             data-featured={product.featured || undefined}
             className={cx(
-              'w-[68vw] shrink-0 snap-center sm:w-[33.333vw] lg:w-auto',
+              'w-[48vw] shrink-0 snap-center sm:w-[33.333vw] lg:w-auto',
               !product.featured && 'lg:mb-[3.2svh]',
             )}
           >

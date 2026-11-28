@@ -50,10 +50,10 @@
   --can-aspect: 0.3793; /* width / height of the upright can */
   --can-label-ratio: 4.32; /* label width / can width */
 
-  /* mobile — the can lies across ~2/3 of the headline, as on desktop */
+  /* mobile — hero can ≈ 2/3 of the headline; it grows across the photo, as on desktop */
   --can-h: min(42svh, 66vw);
-  --can-scale-hero: 1;
-  --can-scale-story: 1;
+  --can-scale-hero: 0.9;
+  --can-scale-story: 1.4;
   --can-scale-md: 0.86;
   --can-scale-sm: 0.86;
 }
@@ -61,8 +61,9 @@
 @media (width >= 40rem) {
   :root {
     --can-h: min(52svh, 40vw);
-    --can-scale-hero: 1.75;
-    --can-scale-story: 2.05;
+    /* hero: can ≈ 2/3 of the headline, as on desktop; story: largest that stays on screen */
+    --can-scale-hero: 1.35;
+    --can-scale-story: 1.7;
     --can-scale-md: 0.86;
     --can-scale-sm: 0.86;
   }
@@ -123,6 +124,40 @@
     background: var(--color-accent);
     color: var(--color-ink);
   }
+}
+
+/* ─── Stage mode (tablet + mobile timeline) ──────────────────────────────────
+   Set by canTimeline while its stage timeline runs: the sections overlap in one
+   screen and cross-fade while <main> stays stuck. Without it (reduced motion,
+   desktop) they stay in normal flow. */
+/* Scroll distance the scene stays stuck for (2 steps); the timeline reads it back.
+   A real box, not padding/margin: sticky stays inside its parent's content box. */
+/* The page ends at the timeline end (products is the last screen). When a phone's URL bar collapses the
+   viewport grows (svh → dvh) and would shrink the max scroll below the end, so the last
+   step and the handoff could never be reached. This adds exactly the bar height (0 on desktop);
+   padding sits outside the sticky content box, so the scene still unsticks at the end. */
+[data-scene] {
+  padding-bottom: calc(100dvh - 100svh);
+}
+[data-scene][data-stage]::after {
+  content: '';
+  display: block;
+  height: 200svh;
+}
+[data-scene][data-stage] > main {
+  position: sticky;
+  top: 0;
+  display: grid;
+  /* minmax(0, …): a grid item's min-width is its content, and the products carousel's
+     full scroll width would widen the page (mobile browsers then zoom out). */
+  grid-template-columns: minmax(0, 1fr);
+}
+[data-scene][data-stage] > main > section {
+  grid-area: 1 / 1;
+  /* Exactly one small viewport: the min-heights of the flow layout would make the stuck
+     scene taller than a real phone's svh (iPhone SE Safari ≈ 548px) and cut it off. */
+  height: 100svh;
+  min-height: 0;
 }
 
 /* ─── Utilities ─────────────────────────────────────────────────────────── */

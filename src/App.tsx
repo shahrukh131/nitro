@@ -1,19 +1,18 @@
 import { useRef } from 'react';
+import { bindCarouselSpin, centreCarousel } from './animations/carousel';
 import { primeLabels } from './animations/canSpin';
-import { createCanTimeline, DESKTOP } from './animations/canTimeline';
+import { createCanTimeline, TIMELINES } from './animations/canTimeline';
 import { gsap, ScrollTrigger, useGSAP } from './animations/gsap';
 import { bindHoverSpin } from './animations/hoverSpin';
+import { BELOW_DESKTOP, MOTION } from './animations/media';
 import { bindStepNav } from './animations/stepNav';
 import type { CanHandle } from './components/can/Can';
 import { FixedCan } from './components/can/FixedCan';
-import { Footer } from './components/layout/Footer';
 import { Navbar } from './components/layout/Navbar';
 import { getLenis, useLenis } from './hooks/useLenis';
 import { Hero } from './sections/Hero';
 import { Products } from './sections/Products';
 import { Story } from './sections/Story';
-
-const MOTION = '(prefers-reduced-motion: no-preference)';
 
 export default function App() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -34,12 +33,19 @@ export default function App() {
 
       const mm = gsap.matchMedia();
       mm.add(`${MOTION} and (hover: hover)`, () => bindHoverSpin(root));
-      mm.add(`${MOTION} and (min-width: 64rem)`, () => {
-        canTrigger = createCanTimeline(root, can, DESKTOP).scrollTrigger;
-        return () => {
-          canTrigger = undefined;
-        };
-      });
+      // Before the timelines so they measure the carousel at home.
+      mm.add(BELOW_DESKTOP, () => centreCarousel(root));
+      mm.add(`${MOTION} and ${BELOW_DESKTOP}`, () => bindCarouselSpin(root));
+      for (const { query, config } of TIMELINES) {
+        mm.add(query, () => {
+          const { timeline, revert } = createCanTimeline(root, can, config);
+          canTrigger = timeline.scrollTrigger;
+          return () => {
+            revert();
+            canTrigger = undefined;
+          };
+        });
+      }
 
       const unbindNav = bindStepNav(root, () => canTrigger, getLenis);
 
@@ -60,13 +66,17 @@ export default function App() {
         Skip to content
       </a>
       <Navbar />
-      <FixedCan ref={canRef} />
-      <main id="main">
-        <Hero />
-        <Story />
-        <Products />
-      </main>
-      <Footer />
+      {/* Scroll track for the tablet/mobile sticky scene (see canTimeline stage mode).
+          FixedCan lives inside <main>: the sticky <main> is a stacking context, and the
+          can must stay between the story photo and its headline. */}
+      <div data-scene>
+        <main id="main">
+          <FixedCan ref={canRef} />
+          <Hero />
+          <Story />
+          <Products />
+        </main>
+      </div>
     </div>
   );
 }

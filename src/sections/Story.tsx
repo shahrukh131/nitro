@@ -12,7 +12,7 @@ export function Story() {
     <section
       id="story"
       aria-labelledby="story-title"
-      className="relative flex min-h-svh flex-col gap-8 px-gutter pt-[calc(var(--spacing-nav)+5rem)] pb-12 sm:flex-row-reverse sm:items-center sm:gap-[4vw] sm:pt-[calc(var(--spacing-nav)+2.75rem)] sm:pb-6 lg:block lg:h-svh lg:px-0"
+      className="relative flex h-svh min-h-[36rem] flex-col gap-6 px-gutter pt-[calc(var(--spacing-nav)+4.5rem)] pb-8 sm:flex-row-reverse sm:items-center sm:gap-[4vw] sm:pt-[calc(var(--spacing-nav)+2.75rem)] sm:pb-6 lg:block lg:px-0 short:min-h-0"
     >
       {/* h2 positions; the visual span is what GSAP animates (keep transforms apart). */}
       <h2
@@ -22,7 +22,7 @@ export function Story() {
         <span className="sr-only">Since 2002 producing</span>
         <span aria-hidden data-anim="story-title" className="block">
           {headlineLines.map((line) => (
-            <span key={line} className="block">
+            <span key={line} data-anim="story-line" className="block">
               {line}
             </span>
           ))}
@@ -30,16 +30,15 @@ export function Story() {
       </h2>
 
       {/* `relative` below lg so the slot centres on the photo; on desktop the slot
-          is positioned against the whole section instead. */}
-      <div className="relative flex-1 sm:flex-none lg:static">
-        <div className="aspect-[884/920] w-full overflow-hidden rounded-card sm:w-[min(46vw,calc(78svh*0.961))] lg:absolute lg:top-[53%] lg:left-[3.3vw] lg:w-[min(46vw,calc(83.8svh*0.961))] lg:-translate-y-1/2">
-          <img
-            src={storyPhoto}
-            alt=""
-            loading="lazy"
-            decoding="async"
-            className="size-full object-cover"
-          />
+          is positioned against the whole section instead. On phones the photo fills
+          what the headline leaves, so the story step is one composed screen. */}
+      <div className="relative min-h-0 flex-1 sm:flex-none lg:static">
+        {/* Outer box positions (incl. a Tailwind translate); the inner one is what GSAP moves. */}
+        <div className="h-full w-full sm:aspect-[884/920] sm:h-auto sm:w-[min(46vw,calc(78svh*0.961))] lg:absolute lg:top-[53%] lg:left-[3.3vw] lg:w-[min(46vw,calc(83.8svh*0.961))] lg:-translate-y-1/2">
+          <div data-anim="story-photo" className="size-full overflow-hidden rounded-card">
+            {/* Eager: in the pinned scene it sits in the viewport, only hidden. */}
+            <img src={storyPhoto} alt="" decoding="async" className="size-full object-cover" />
+          </div>
         </div>
 
         <CanSlot step="story" className="top-1/2 z-10 lg:top-[52%] lg:left-[49.8%]">

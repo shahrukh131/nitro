@@ -40,9 +40,24 @@ export function spinTo(
  * direction stays on the strip.
  */
 export function spinTurn(label: HTMLElement, vars: gsap.TweenVars = {}): gsap.core.Tween {
+  return spinTo(label, turnShift(label), vars);
+}
+
+function turnShift(label: HTMLElement): number {
   const rest = restShift(label);
   const forward = rest - LABEL_PERIOD;
-  return spinTo(label, forward >= LABEL_SHIFT_RANGE.min ? forward : rest + LABEL_PERIOD, vars);
+  return forward >= LABEL_SHIFT_RANGE.min ? forward : rest + LABEL_PERIOD;
+}
+
+/** One turn out and back in a single tween, so the label always ends on its rest artwork. */
+export function spinShowcase(label: HTMLElement): gsap.core.Tween {
+  return gsap.to(label, {
+    keyframes: [
+      { xPercent: turnShift(label), duration: 0.8, ease: 'power2.inOut' },
+      { xPercent: restShift(label), duration: 0.9, ease: 'power2.inOut' },
+    ],
+    overwrite: true,
+  });
 }
 
 /** Back to the resting artwork (exactly what the design shows). */

@@ -2,9 +2,13 @@ import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 import { useEffect } from 'react';
 import { gsap, ScrollTrigger } from '../animations/gsap';
+import { MOTION } from '../animations/media';
 
-/** Smooth scroll on tablet + desktop only; touch phones keep native scrolling. */
-const LENIS_QUERY = '(min-width: 40rem) and (prefers-reduced-motion: no-preference)';
+/**
+ * Smooth wheel/trackpad scroll on every breakpoint. Touch keeps native scrolling
+ * (Lenis' syncTouch is off), so phones keep their own momentum.
+ */
+const LENIS_QUERY = MOTION;
 
 /** The running instance (null when Lenis is off), for code that needs to scroll programmatically. */
 let current: Lenis | null = null;
@@ -12,7 +16,7 @@ export const getLenis = (): Lenis | null => current;
 
 /**
  * Runs Lenis on GSAP's ticker (one RAF loop) and keeps ScrollTrigger in sync.
- * Starts/stops as the media query flips, e.g. when resizing across 640px.
+ * Starts/stops as the media query flips (reduced-motion setting).
  * In-page links are handled by `animations/stepNav.ts`, so Lenis `anchors` is off.
  */
 export function useLenis(query: string = LENIS_QUERY): void {

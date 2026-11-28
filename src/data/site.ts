@@ -8,7 +8,6 @@ export const navLinks: readonly NavLink[] = [
   { label: 'Shop', href: '#products' },
   { label: 'About', href: '#story' },
   { label: 'Gallery', href: '#products' },
-  { label: 'Contact', href: '#contact' },
 ];
 
 export type SocialId = 'facebook' | 'instagram' | 'x' | 'linkedin';

@@ -1,6 +1,7 @@
 import type Lenis from 'lenis';
 import { ScrollTrigger } from './gsap';
 import { setNavigating } from './scrollIntent';
+import { scrollToY } from './scrollTo';
 
 /** Sections that are steps of the can timeline → their timeline label. */
 const STEP_BY_ID: Record<string, string> = { home: 'hero', story: 'story', products: 'products' };
@@ -64,8 +65,7 @@ export function bindStepNav(
       window.scrollTo({ top, behavior: 'auto' });
       land();
     } else {
-      window.addEventListener('scrollend', land, { once: true });
-      window.scrollTo({ top, behavior: 'smooth' });
+      scrollToY(top, { duration: 1.2, onComplete: land });
     }
   };
 

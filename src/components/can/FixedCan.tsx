@@ -18,7 +18,7 @@ export function FixedCan({ ref }: FixedCanProps) {
     <div
       data-fixed-can
       aria-hidden
-      className="pointer-events-none invisible fixed inset-0 z-10 grid place-items-center"
+      className="pointer-events-none invisible fixed inset-x-0 top-0 z-10 grid h-svh place-items-center"
     >
       <div className="h-(--can-h)">
         <Can ref={ref} label={featuredProduct.label} labelShift={LABEL_SHIFT.hero} />
